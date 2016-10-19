@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"log"
 	"math/rand"
 	"net/http"
 	"os"
@@ -18,6 +19,14 @@ func threeWords(wordSpace []string, max int) string {
 	third := rand.Intn(len(wordSpace))
 
 	return wordSpace[first] + "-" + wordSpace[second] + "-" + wordSpace[third]
+}
+
+func determineListenAddress() (string, error) {
+	port := os.Getenv("PORT")
+	if port == "" {
+		return "", fmt.Errorf("$PORT not set")
+	}
+	return ":" + port, nil
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
@@ -42,8 +51,13 @@ func handler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	addr, err := determineListenAddress()
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	rand.Seed(time.Now().UTC().UnixNano())
 
 	http.HandleFunc("/", handler)
-	http.ListenAndServe(":8080", nil)
+	http.ListenAndServe(addr, nil)
 }
