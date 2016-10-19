@@ -10,6 +10,8 @@ import (
 	"time"
 )
 
+var wordSpace []string
+
 func threeWords(wordSpace []string, max int) string {
 	first := rand.Intn(len(wordSpace))
 	second := rand.Intn(len(wordSpace))
