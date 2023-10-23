@@ -24,7 +24,8 @@ func threeWords(wordSpace []string, max int) string {
 func determineListenAddress() (string, error) {
 	port := os.Getenv("PORT")
 	if port == "" {
-		return "", fmt.Errorf("$PORT not set")
+		return ":8080", nil
+		//return "", fmt.Errorf("$PORT not set")
 	}
 	return ":" + port, nil
 }
@@ -55,7 +56,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
+	//NewRand(NewSource(time.Now().UTC().UnixNano()))
 	rand.Seed(time.Now().UTC().UnixNano())
 
 	http.HandleFunc("/", handler)
