@@ -60,5 +60,13 @@ func main() {
 	rand.Seed(time.Now().UTC().UnixNano())
 
 	http.HandleFunc("/", handler)
-	http.ListenAndServe(addr, nil)
+	
+	serverAddress := "http://localhost" + addr
+	if addr != ":8080" {
+		// If using Heroku or other platform with custom PORT
+		serverAddress = "Server started on port" + addr
+	}
+	fmt.Println("Server started! Navigate to " + serverAddress + " to see three random words.")
+	
+	log.Fatal(http.ListenAndServe(addr, nil))
 }
