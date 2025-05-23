@@ -1,0 +1,3 @@
+[submodule "threeWords"]
+    path = threeWords
+    url = https://github.com/nryberg/threeWords.git
