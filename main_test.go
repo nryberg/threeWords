@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -8,9 +9,11 @@ import (
 	"testing"
 )
 
-func TestThreeWords(t *testing.T) {
+func TestWordGenerator_ThreeWords(t *testing.T) {
 	words := []string{"apple", "banana", "cherry", "date", "elderberry"}
-	result := threeWords(words, len(words))
+	generator := NewWordGenerator(words)
+	
+	result := generator.ThreeWords()
 	
 	parts := strings.Split(result, "-")
 	if len(parts) != 3 {
@@ -53,7 +56,27 @@ func TestDetermineListenAddress(t *testing.T) {
 	}
 }
 
-func TestHandler(t *testing.T) {
+func TestLoadWords(t *testing.T) {
+	// Skip this test if the word file doesn't exist locally
+	if _, err := os.Stat("many_words.txt"); os.IsNotExist(err) {
+		t.Skip("Skipping test as many_words.txt doesn't exist")
+	}
+	
+	words, err := loadWords("many_words.txt")
+	if err != nil {
+		t.Fatalf("Failed to load words: %v", err)
+	}
+	
+	if len(words) == 0 {
+		t.Error("Expected words to be loaded, but got empty list")
+	}
+}
+
+func TestHTTPHandler(t *testing.T) {
+	// Create test words
+	words := []string{"apple", "banana", "cherry", "date", "elderberry"}
+	generator := NewWordGenerator(words)
+	
 	// Create a request to pass to our handler
 	req, err := http.NewRequest("GET", "/", nil)
 	if err != nil {
@@ -62,12 +85,11 @@ func TestHandler(t *testing.T) {
 	
 	// Create a ResponseRecorder to record the response
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(handler)
 	
-	// Skip this test if the word file doesn't exist locally
-	if _, err := os.Stat("many_words.txt"); os.IsNotExist(err) {
-		t.Skip("Skipping test as many_words.txt doesn't exist")
-	}
+	// Create the handler function
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprint(w, generator.ThreeWords())
+	})
 	
 	// Our handler fulfills http.Handler, so we can call ServeHTTP method directly
 	handler.ServeHTTP(rr, req)
